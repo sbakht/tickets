@@ -1,5 +1,5 @@
-import shows from '../../data/shows.json'
+import showsService from '../../services/shows'
 
 export default defineEventHandler(() => {
-  return shows
+  return showsService.listShows()
 })
