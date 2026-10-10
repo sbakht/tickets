@@ -59,8 +59,8 @@
               {{ show.description }}
             </p>
             <p class="text-highlighted font-semibold flex items-baseline gap-2">
-              <span v-if="hasNewPrice" class="text-muted text-base font-normal line-through">
-                ${{ show.price }}
+              <span v-if="hasPriceUpdate" class="text-muted text-base font-normal line-through">
+                ${{ arrivalUnitPrice }}
               </span>
               <span>${{ unitPrice }} each</span>
             </p>
@@ -98,8 +98,8 @@
               Total
             </span>
             <span class="text-xl font-semibold text-highlighted flex items-baseline gap-2">
-              <span v-if="hasNewPrice" class="text-muted text-base font-normal line-through">
-                ${{ originalTotal }}
+              <span v-if="hasPriceUpdate" class="text-muted text-base font-normal line-through">
+                ${{ arrivalTotal }}
               </span>
               <span>${{ total }}</span>
             </span>
@@ -149,6 +149,11 @@ const { data: initialShow, error } = await useFetch<Show>(() => `/shows/${showId
 const show = useShowStream(showId, initialShow)
 useCheckoutToast(show)
 
+const arrivalUnitPrice = computed(() => {
+  if (!initialShow.value) return null
+  return initialShow.value.newPrice ?? initialShow.value.price
+})
+
 const maxQuantity = computed(() => {
   if (!show.value) return 1
   return Math.min(MAX_TICKET_QUANTITY, show.value.remaining)
@@ -165,19 +170,18 @@ watch(show, (value) => {
   }
 }, { immediate: true })
 
-
-const hasNewPrice = computed(() => {
-  return typeof show.value?.newPrice === 'number'
-})
-
 const unitPrice = computed(() => {
   if (!show.value) return 0
-  return hasNewPrice.value ? show.value.newPrice! : show.value.price
+  return show.value.newPrice ?? show.value.price
 })
 
-const originalTotal = computed(() => {
-  if (!show.value) return 0
-  return show.value.price * quantity.value
+const hasPriceUpdate = computed(() => {
+  return arrivalUnitPrice.value !== null && unitPrice.value !== arrivalUnitPrice.value
+})
+
+const arrivalTotal = computed(() => {
+  if (arrivalUnitPrice.value === null) return 0
+  return arrivalUnitPrice.value * quantity.value
 })
 
 const total = computed(() => unitPrice.value * quantity.value)
