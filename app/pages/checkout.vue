@@ -8,7 +8,7 @@
       class="mb-6"
     />
 
-    <div v-if="error" class="text-error">
+    <div v-if="error && error.statusCode !== 404" class="text-error">
       Could not load show details. Please try again.
     </div>
 
@@ -58,8 +58,11 @@
             <p class="text-muted text-sm">
               {{ show.description }}
             </p>
-            <p class="text-highlighted font-semibold">
-              ${{ show.price }} each
+            <p class="text-highlighted font-semibold flex items-baseline gap-2">
+              <span v-if="hasNewPrice" class="text-muted text-base font-normal line-through">
+                ${{ show.price }}
+              </span>
+              <span>${{ unitPrice }} each</span>
             </p>
             <p class="text-muted text-sm">
               {{ show.remaining }} ticket{{ show.remaining === 1 ? '' : 's' }} remaining
@@ -94,8 +97,11 @@
             <span class="text-muted">
               Total
             </span>
-            <span class="text-xl font-semibold text-highlighted">
-              ${{ total }}
+            <span class="text-xl font-semibold text-highlighted flex items-baseline gap-2">
+              <span v-if="hasNewPrice" class="text-muted text-base font-normal line-through">
+                ${{ originalTotal }}
+              </span>
+              <span>${{ total }}</span>
             </span>
           </div>
 
@@ -122,6 +128,7 @@ type Show = {
   description: string
   image: string
   price: number
+  newPrice?: number
   remaining: number
 }
 
@@ -152,10 +159,21 @@ watch(show, (value) => {
   }
 }, { immediate: true })
 
-const total = computed(() => {
+const hasNewPrice = computed(() => {
+  return typeof show.value?.newPrice === 'number'
+})
+
+const unitPrice = computed(() => {
+  if (!show.value) return 0
+  return hasNewPrice.value ? show.value.newPrice! : show.value.price
+})
+
+const originalTotal = computed(() => {
   if (!show.value) return 0
   return show.value.price * quantity.value
 })
+
+const total = computed(() => unitPrice.value * quantity.value)
 
 const email = ref('')
 const name = ref('')
@@ -164,9 +182,5 @@ const submitted = ref(false)
 function placeOrder() {
   if (!show.value || !name.value.trim() || !email.value.trim()) return
   submitted.value = true
-}
-
-if (!showId.value) {
-  await navigateTo('/')
 }
 </script>
