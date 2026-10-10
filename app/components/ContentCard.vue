@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+  id: string
   title: string
   description: string
   image: string
@@ -12,8 +13,13 @@ const quantity = ref(1)
 const maxQuantity = computed(() => Math.min(4, props.remaining))
 
 function buy() {
-  // Placeholder for checkout / cart flow
-  console.log(`Buying ${quantity.value} ticket(s)`)
+  navigateTo({
+    path: '/checkout',
+    query: {
+      show: props.id,
+      qty: String(quantity.value)
+    }
+  })
 }
 </script>
 
@@ -34,7 +40,7 @@ function buy() {
         ${{ price }}
       </p>
       <p class="text-muted text-sm">
-        {{ remaining }} remaining
+        {{ remaining }} ticket{{ remaining === 1 ? '' : 's' }} remaining
       </p>
     </div>
 
