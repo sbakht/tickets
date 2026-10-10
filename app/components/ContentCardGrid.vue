@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import cards from '~/data/concerts.json'
+const { data: cards } = await useFetch('/shows')
 </script>
 
 <template>
