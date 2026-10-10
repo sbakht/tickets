@@ -13,8 +13,10 @@ const quantity = defineModel<number>({ default: 1 })
 <template>
   <UInputNumber
     v-model="quantity"
+    size="sm"
     :min="min"
     :max="max"
     :step="1"
+    class="w-28"
   />
 </template>

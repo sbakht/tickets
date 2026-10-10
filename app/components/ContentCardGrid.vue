@@ -10,6 +10,8 @@ const { data: cards } = await useFetch('/shows')
       :title="card.title"
       :description="card.description"
       :image="card.image"
+      :price="card.price"
+      :remaining="card.remaining"
     />
   </div>
 </template>
