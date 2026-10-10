@@ -1,3 +1,4 @@
+import randomPick from '../utils/randomPick'
 import showsService from './shows'
 
 const simulators = new Map<string, ReturnType<typeof setInterval>>()
@@ -13,14 +14,25 @@ function tickShow(id: string) {
   }
 }
 
+function tickRemaining(id: string) {
+  const show = showsService.getShow(id)
+  if (!show || show.remaining <= 0) return
+
+  showsService.updateShow(id, { remaining: show.remaining - 1 })
+}
+
 const showSimulator = {
   ensure(id: string) {
     if (simulators.has(id)) return
     if (!showsService.getShow(id)) return
 
-    const timer = setInterval(() => {
-      tickShow(id)
-    }, 4000 + Math.floor(Math.random() * 4000))
+    const timer = setInterval(
+      randomPick([
+        () => tickShow(id),
+        () => tickRemaining(id)
+      ]),
+      4000 + Math.floor(Math.random() * 4000)
+    )
 
     simulators.set(id, timer)
   },

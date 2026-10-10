@@ -113,6 +113,9 @@
             block
             :disabled="!name.trim() || !email.trim()"
           />
+          <p v-if="orderError" class="text-error text-sm">
+            {{ orderError }}
+          </p>
         </form>
       </UCard>
     </div>
@@ -141,7 +144,10 @@ if (!showId.value) {
   await navigateTo('/')
 }
 
-const { data: show, error } = await useFetch<Show>(() => `/shows/${showId.value}`)
+const { data: initialShow, error } = await useFetch<Show>(() => `/shows/${showId.value}`)
+
+const show = useShowStream(showId, initialShow)
+useCheckoutToast(show)
 
 const maxQuantity = computed(() => {
   if (!show.value) return 1
@@ -158,6 +164,7 @@ watch(show, (value) => {
     )
   }
 }, { immediate: true })
+
 
 const hasNewPrice = computed(() => {
   return typeof show.value?.newPrice === 'number'
@@ -178,9 +185,17 @@ const total = computed(() => unitPrice.value * quantity.value)
 const email = ref('')
 const name = ref('')
 const submitted = ref(false)
+const orderError = ref('')
 
 function placeOrder() {
   if (!show.value || !name.value.trim() || !email.value.trim()) return
+
+  if (show.value.remaining <= 0) {
+    orderError.value = 'There are no tickets remaining for this show.'
+    return
+  }
+
+  orderError.value = ''
   submitted.value = true
 }
 </script>
