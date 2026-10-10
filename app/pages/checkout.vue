@@ -1,54 +1,3 @@
-<script setup lang="ts">
-type Show = {
-  id: string
-  title: string
-  description: string
-  image: string
-  price: number
-  remaining: number
-}
-
-const route = useRoute()
-
-const showId = computed(() => String(route.query.show || ''))
-const qtyParam = computed(() => Number(route.query.qty) || 1)
-
-const { data: shows, error } = await useFetch<Show[]>('/shows')
-
-const show = computed(() => shows.value?.find(s => s.id === showId.value))
-
-const maxQuantity = computed(() => {
-  if (!show.value) return 1
-  return Math.min(4, show.value.remaining)
-})
-
-const quantity = ref(Math.min(Math.max(qtyParam.value, 1), maxQuantity.value))
-
-watch(show, (value) => {
-  if (value) {
-    quantity.value = Math.min(Math.max(quantity.value, 1), Math.min(4, value.remaining))
-  }
-}, { immediate: true })
-
-const total = computed(() => {
-  if (!show.value) return 0
-  return show.value.price * quantity.value
-})
-
-const email = ref('')
-const name = ref('')
-const submitted = ref(false)
-
-function placeOrder() {
-  if (!show.value || !name.value.trim() || !email.value.trim()) return
-  submitted.value = true
-}
-
-if (!showId.value) {
-  await navigateTo('/')
-}
-</script>
-
 <template>
   <div class="p-8 max-w-3xl mx-auto">
     <UButton
@@ -163,3 +112,59 @@ if (!showId.value) {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { MAX_TICKET_QUANTITY } from '~/utils/tickets'
+
+type Show = {
+  id: string
+  title: string
+  description: string
+  image: string
+  price: number
+  remaining: number
+}
+
+const route = useRoute()
+
+const showId = computed(() => String(route.query.show || ''))
+const qtyParam = computed(() => Number(route.query.qty) || 1)
+
+const { data: shows, error } = await useFetch<Show[]>('/shows')
+
+const show = computed(() => shows.value?.find(s => s.id === showId.value))
+
+const maxQuantity = computed(() => {
+  if (!show.value) return 1
+  return Math.min(MAX_TICKET_QUANTITY, show.value.remaining)
+})
+
+const quantity = ref(Math.min(Math.max(qtyParam.value, 1), maxQuantity.value))
+
+watch(show, (value) => {
+  if (value) {
+    quantity.value = Math.min(
+      Math.max(quantity.value, 1),
+      Math.min(MAX_TICKET_QUANTITY, value.remaining)
+    )
+  }
+}, { immediate: true })
+
+const total = computed(() => {
+  if (!show.value) return 0
+  return show.value.price * quantity.value
+})
+
+const email = ref('')
+const name = ref('')
+const submitted = ref(false)
+
+function placeOrder() {
+  if (!show.value || !name.value.trim() || !email.value.trim()) return
+  submitted.value = true
+}
+
+if (!showId.value) {
+  await navigateTo('/')
+}
+</script>

@@ -1,28 +1,3 @@
-<script setup lang="ts">
-const props = defineProps<{
-  id: string
-  title: string
-  description: string
-  image: string
-  price: number
-  remaining: number
-  alt?: string
-}>()
-
-const quantity = ref(1)
-const maxQuantity = computed(() => Math.min(4, props.remaining))
-
-function buy() {
-  navigateTo({
-    path: '/checkout',
-    query: {
-      show: props.id,
-      qty: String(quantity.value)
-    }
-  })
-}
-</script>
-
 <template>
   <UCard
     :title="title"
@@ -52,3 +27,30 @@ function buy() {
     </template>
   </UCard>
 </template>
+
+<script setup lang="ts">
+import { MAX_TICKET_QUANTITY } from '~/utils/tickets'
+
+const props = defineProps<{
+  id: string
+  title: string
+  description: string
+  image: string
+  price: number
+  remaining: number
+  alt?: string
+}>()
+
+const quantity = ref(1)
+const maxQuantity = computed(() => Math.min(MAX_TICKET_QUANTITY, props.remaining))
+
+function buy() {
+  navigateTo({
+    path: '/checkout',
+    query: {
+      show: props.id,
+      qty: String(quantity.value)
+    }
+  })
+}
+</script>
