@@ -29,7 +29,7 @@ function buy() {
     <template #footer>
       <div class="flex items-center justify-between gap-3">
         <QuantitySelector v-model="quantity" />
-        <UButton label="Buy" icon="i-lucide-ticket" @click="buy" />
+        <UButton label="Buy" icon="i-lucide-ticket" class="cursor-pointer" @click="buy" />
       </div>
     </template>
   </UCard>
