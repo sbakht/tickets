@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Iron Legion World Tour",
+    "description": "An all-out thrash assault with twin guitars and a crushing rhythm section.",
+    "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80"
+  },
+  {
+    "title": "Blackened Skies Fest",
+    "description": "Three days of black metal under open skies — pyrotechnics and blast beats included.",
+    "image": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80"
+  },
+  {
+    "title": "Doom Cathedral",
+    "description": "Slow, heavy, and hypnotic. A night of sludge and doom in a converted church.",
+    "image": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80"
+  },
+  {
+    "title": "Pit Mentality Live",
+    "description": "Hardcore-meets-metalcore chaos. Expect circle pits and stage dives.",
+    "image": "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80"
+  },
+  {
+    "title": "Neon Death Machine",
+    "description": "Synth-laced industrial metal with strobes, smoke, and wall-of-sound riffs.",
+    "image": "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80"
+  },
+  {
+    "title": "Valhalla Rising",
+    "description": "Folk and viking metal anthems — horns up, mead optional, volume mandatory.",
+    "image": "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80"
+  }
+]
