@@ -130,9 +130,11 @@ const route = useRoute()
 const showId = computed(() => String(route.query.show || ''))
 const qtyParam = computed(() => Number(route.query.qty) || 1)
 
-const { data: shows, error } = await useFetch<Show[]>('/shows')
+if (!showId.value) {
+  await navigateTo('/')
+}
 
-const show = computed(() => shows.value?.find(s => s.id === showId.value))
+const { data: show, error } = await useFetch<Show>(() => `/shows/${showId.value}`)
 
 const maxQuantity = computed(() => {
   if (!show.value) return 1
