@@ -45,4 +45,4 @@ I stored completed orders in sessions via a complete flag instead of a separate 
 
 ## What you'd do differently with more time
 
-Add a orders api, store "static" event info and inventory/pricing updates separately so we don't have to constantly access event info api and update it unnecessarily (better backend infra performance). Test for accessibility, performance, seo.
+Add a orders api, store "static" event info and inventory/pricing updates separately so we don't have to constantly access event info api and update it unnecessarily (better backend infra performance). Add authentication, add ability to reserve tickets.
