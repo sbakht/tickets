@@ -1,3 +1,4 @@
+import { createError, createEventStream, defineEventHandler, getRouterParam } from 'h3'
 import showsService from '../../../services/shows'
 import subscribeShow from '../../../services/showLive'
 

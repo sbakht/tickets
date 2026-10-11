@@ -1,19 +1,29 @@
-import showsService, { type ShowUpdate } from './shows'
+import showsService from './shows'
 import showSimulator from './showSimulator'
+import type { ShowUpdate } from '../../shared/types'
 
 type ShowListener = (update: ShowUpdate) => void
 
 const listeners = new Map<string, Set<ShowListener>>()
 
-showsService.onChange((show) => {
-  const set = listeners.get(show.id)
-  if (!set) return
+let wired = false
 
-  const update = showsService.getShowUpdates(show)
-  for (const listener of set) {
-    listener(update)
-  }
-})
+function ensureWired() {
+  if (wired) return
+  wired = true
+
+  showsService.onChange((show) => {
+    const set = listeners.get(show.id)
+    if (!set) return
+
+    const update = showsService.getShowUpdates(show)
+    for (const listener of set) {
+      listener(update)
+    }
+  })
+}
+
+ensureWired()
 
 function stopSimulatorIfIdle(id: string) {
   const set = listeners.get(id)
@@ -24,6 +34,8 @@ function stopSimulatorIfIdle(id: string) {
 }
 
 export default function subscribeShow(id: string, cb: ShowListener) {
+  ensureWired()
+
   const show = showsService.getShow(id)
   if (!show) {
     return () => {}
@@ -43,4 +55,11 @@ export default function subscribeShow(id: string, cb: ShowListener) {
     set!.delete(cb)
     stopSimulatorIfIdle(id)
   }
+}
+
+export function resetShowLiveForTests() {
+  for (const id of [...listeners.keys()]) {
+    showSimulator.stop(id)
+  }
+  listeners.clear()
 }

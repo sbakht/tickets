@@ -1,5 +1,5 @@
 import type { Session } from '../../shared/types'
-import showsService from './shows'
+import showsServiceDefault, { type ShowsService } from './shows'
 
 export type CreateSessionInput = {
   showId: string
@@ -10,11 +10,13 @@ export type CreateSessionInput = {
 
 export type UpdateSessionInput = Partial<Pick<Session, 'username' | 'email' | 'quantity'>>
 
-class SessionService {
+export class SessionService {
   private sessions = new Map<string, Session>()
 
+  constructor(private readonly shows: ShowsService = showsServiceDefault) {}
+
   create(input: CreateSessionInput) {
-    if (!showsService.getShow(input.showId)) {
+    if (!this.shows.getShow(input.showId)) {
       return undefined
     }
 
@@ -54,6 +56,11 @@ class SessionService {
     session.complete = true
     return session
   }
+
+  resetForTests() {
+    this.sessions.clear()
+  }
 }
 
-export default new SessionService()
+const sessionService = new SessionService()
+export default sessionService

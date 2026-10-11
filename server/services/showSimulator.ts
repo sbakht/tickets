@@ -43,6 +43,12 @@ const showSimulator = {
       clearInterval(timer)
       simulators.delete(id)
     }
+  },
+
+  stopAll() {
+    for (const id of [...simulators.keys()]) {
+      showSimulator.stop(id)
+    }
   }
 }
 

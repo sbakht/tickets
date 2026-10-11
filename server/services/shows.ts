@@ -5,7 +5,7 @@ export type UpdateShowInput = Partial<Omit<Show, 'id'>>
 
 type ChangeHandler = (show: Show, previous: ShowUpdate) => void
 
-class ShowsService {
+export class ShowsService {
   private shows = structuredClone(showsData) as Show[]
   private changeHandlers = new Set<ChangeHandler>()
 
@@ -47,6 +47,11 @@ class ShowsService {
       newPrice: show.newPrice
     }
   }
+
+  resetForTests() {
+    this.shows = structuredClone(showsData) as Show[]
+  }
 }
 
-export default new ShowsService()
+const showsService = new ShowsService()
+export default showsService

@@ -1,3 +1,4 @@
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import sessionService, { type UpdateSessionInput } from '../../services/session'
 
 export default defineEventHandler(async (event) => {
