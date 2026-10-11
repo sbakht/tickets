@@ -5,6 +5,7 @@ const toaster = { max: 1 }
 <template>
   <UApp :toaster="toaster">
     <NuxtRouteAnnouncer />
+    <AppHeader />
     <NuxtPage />
   </UApp>
 </template>
