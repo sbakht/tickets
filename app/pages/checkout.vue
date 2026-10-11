@@ -58,12 +58,12 @@
             <p class="text-muted text-sm">
               {{ show.description }}
             </p>
-            <p class="text-highlighted font-semibold flex items-baseline gap-2">
-              <span v-if="hasPriceUpdate" class="text-muted text-base font-normal line-through">
-                ${{ arrivalUnitPrice }}
-              </span>
-              <span>${{ unitPrice }} each</span>
-            </p>
+            <CheckoutPrice
+              :price="show.price"
+              :new-price="show.newPrice"
+              :resumed="isResumedSession"
+              suffix="each"
+            />
             <p class="text-muted text-sm">
               {{ show.remaining }} ticket{{ show.remaining === 1 ? '' : 's' }} remaining
             </p>
@@ -71,76 +71,71 @@
         </div>
       </UCard>
 
-      <UCard>
-        <form class="space-y-5" @submit.prevent="placeOrder">
-          <div class="flex items-center justify-between gap-4">
-            <label class="text-sm font-medium text-highlighted">
-              Quantity
-            </label>
-            <QuantitySelector v-model="quantity" :max="maxQuantity" />
-          </div>
-
-          <UFormField label="Full name" name="name" required>
-            <UInput v-model="name" placeholder="Jane Doe" class="w-full" />
-          </UFormField>
-
-          <UFormField label="Email" name="email" required>
-            <UInput
-              v-model="email"
-              type="email"
-              placeholder="jane@example.com"
-              class="w-full"
-            />
-          </UFormField>
-
-          <div class="flex items-center justify-between border-t border-default pt-4">
-            <span class="text-muted">
-              Total
-            </span>
-            <span class="text-xl font-semibold text-highlighted flex items-baseline gap-2">
-              <span v-if="hasPriceUpdate" class="text-muted text-base font-normal line-through">
-                ${{ arrivalTotal }}
-              </span>
-              <span>${{ total }}</span>
-            </span>
-          </div>
-
-          <UButton
-            type="submit"
-            label="Place order"
-            icon="i-lucide-check"
-            size="lg"
-            block
-            :disabled="!name.trim() || !email.trim()"
-          />
-          <p v-if="orderError" class="text-error text-sm">
-            {{ orderError }}
-          </p>
-        </form>
-      </UCard>
+      <CheckoutForm
+        :session-id="sessionId"
+        :show="show"
+        :resumed="isResumedSession"
+        :initial-name="name"
+        :initial-email="email"
+        :initial-quantity="quantity"
+        @submitted="onOrderSubmitted"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MAX_TICKET_QUANTITY } from '~/utils/tickets'
-
-type Show = {
-  id: string
-  title: string
-  description: string
-  image: string
-  price: number
-  newPrice?: number
-  remaining: number
-}
+import type { Session, Show } from '#shared/types'
 
 const route = useRoute()
 
-const showId = computed(() => String(route.query.show || ''))
-const qtyParam = computed(() => Number(route.query.qty) || 1)
+const sessionQuery = String(route.query.session || '')
+const showQuery = String(route.query.show || '')
+const qtyQuery = Number(route.query.qty) || 1
 
-if (!showId.value) {
+const isResumedSession = Boolean(sessionQuery)
+const sessionId = ref('')
+const showId = ref('')
+const name = ref('')
+const email = ref('')
+const quantity = ref(1)
+const submitted = ref(false)
+
+if (sessionQuery) {
+  try {
+    const session = await $fetch<Session>(`/sessions/${sessionQuery}`)
+    if (session.complete) {
+      await navigateTo('/')
+    } else {
+      sessionId.value = session.id
+      showId.value = session.showId
+      name.value = session.username
+      email.value = session.email
+      quantity.value = session.quantity
+    }
+  } catch {
+    await navigateTo('/')
+  }
+} else if (showQuery) {
+  try {
+    const session = await $fetch<Session>('/sessions', {
+      method: 'POST',
+      body: {
+        showId: showQuery,
+        quantity: qtyQuery
+      }
+    })
+    sessionId.value = session.id
+    showId.value = session.showId
+    quantity.value = session.quantity
+    await navigateTo({
+      path: '/checkout',
+      query: { session: session.id }
+    }, { replace: true })
+  } catch {
+    await navigateTo('/')
+  }
+} else {
   await navigateTo('/')
 }
 
@@ -149,57 +144,10 @@ const { data: initialShow, error } = await useFetch<Show>(() => `/shows/${showId
 const show = useShowStream(showId, initialShow)
 useCheckoutToast(show)
 
-const arrivalUnitPrice = computed(() => {
-  if (!initialShow.value) return null
-  return initialShow.value.newPrice ?? initialShow.value.price
-})
-
-const maxQuantity = computed(() => {
-  if (!show.value) return 1
-  return Math.min(MAX_TICKET_QUANTITY, show.value.remaining)
-})
-
-const quantity = ref(Math.min(Math.max(qtyParam.value, 1), maxQuantity.value))
-
-watch(show, (value) => {
-  if (value) {
-    quantity.value = Math.min(
-      Math.max(quantity.value, 1),
-      Math.min(MAX_TICKET_QUANTITY, value.remaining)
-    )
-  }
-}, { immediate: true })
-
-const unitPrice = computed(() => {
-  if (!show.value) return 0
-  return show.value.newPrice ?? show.value.price
-})
-
-const hasPriceUpdate = computed(() => {
-  return arrivalUnitPrice.value !== null && unitPrice.value !== arrivalUnitPrice.value
-})
-
-const arrivalTotal = computed(() => {
-  if (arrivalUnitPrice.value === null) return 0
-  return arrivalUnitPrice.value * quantity.value
-})
-
-const total = computed(() => unitPrice.value * quantity.value)
-
-const email = ref('')
-const name = ref('')
-const submitted = ref(false)
-const orderError = ref('')
-
-function placeOrder() {
-  if (!show.value || !name.value.trim() || !email.value.trim()) return
-
-  if (show.value.remaining <= 0) {
-    orderError.value = 'There are no tickets remaining for this show.'
-    return
-  }
-
-  orderError.value = ''
+function onOrderSubmitted(order: { name: string, email: string, quantity: number }) {
+  name.value = order.name
+  email.value = order.email
+  quantity.value = order.quantity
   submitted.value = true
 }
 </script>

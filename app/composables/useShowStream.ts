@@ -1,16 +1,6 @@
-type ShowUpdate = {
-  remaining: number
-  price: number
-  newPrice?: number
-}
+import type { ShowUpdate } from '#shared/types'
 
-type ShowLike = {
-  remaining: number
-  price: number
-  newPrice?: number
-}
-
-export default function useShowStream<T extends ShowLike>(
+export default function useShowStream<T extends ShowUpdate>(
   showId: MaybeRefOrGetter<string>,
   show: MaybeRefOrGetter<T | null | undefined>
 ) {

@@ -1,20 +1,5 @@
+import type { Show, ShowUpdate } from '../../shared/types'
 import showsData from '../data/shows.json'
-
-export type Show = {
-  id: string
-  title: string
-  description: string
-  image: string
-  price: number
-  newPrice?: number
-  remaining: number
-}
-
-export type ShowUpdate = {
-  remaining: number
-  price: number
-  newPrice?: number
-}
 
 export type UpdateShowInput = Partial<Omit<Show, 'id'>>
 
