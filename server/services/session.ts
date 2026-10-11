@@ -54,10 +54,6 @@ class SessionService {
     session.complete = true
     return session
   }
-
-  delete(id: string) {
-    return this.sessions.delete(id)
-  }
 }
 
 export default new SessionService()
