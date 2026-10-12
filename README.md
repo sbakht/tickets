@@ -45,4 +45,4 @@ I stored completed orders in sessions via a complete flag instead of a separate 
 
 ## What you'd do differently with more time
 
-Add a orders api, store "static" event info and inventory/pricing updates separately so we don't have to constantly access event info api and update it unnecessarily (better backend infra performance). Add authentication, add ability to reserve tickets. Add Playwright for integration tests.
+Add a orders api, store "static" event info and inventory/pricing updates separately so we don't have to constantly access event info api and update it unnecessarily (better backend infra performance). Add authentication, add ability to reserve tickets. Add Playwright for integration tests. Test accessiblity, add a homepage and show details page. Update pricing and availability on shows page dynamically. Add credit card and more user info to checkout page.
